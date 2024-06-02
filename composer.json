@@ -4,6 +4,7 @@
     "keywords": ["framework","micro","api","router"],
     "homepage": "https://github.com/locky42/fat-framework",
     "type": "library",
+    "prefer-stable": false,
     "require": {
         "slim/slim": "4.*",
         "slim/psr7": "^1.6",
