@@ -1,0 +1,51 @@
+<?php
+
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Configuration;
+use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
+use App\Helpers\Config;
+
+require_once __DIR__ . "/../vendor/autoload.php";
+
+// Create a simple "default" Doctrine ORM configuration for Annotations
+$isDevMode = true;
+$config = new Configuration;
+$driverChain = new MappingDriverChain();
+$annotationDriver = new AnnotationDriver(new AnnotationReader(), [__DIR__."/../src/Models"]);
+$driverChain->addDriver($annotationDriver, 'App');
+$config->setMetadataDriverImpl($driverChain);
+$config->setProxyDir(__DIR__ . '/Proxies');
+$config->setProxyNamespace('Proxies');
+
+$config->setAutoGenerateProxyClasses($isDevMode);
+
+// database configuration parameters
+$dbConfig = [
+    'driver' => 'pdo_mysql',
+    'user' => Config::get('db.user'),
+    'password' => Config::get('db.password'),
+    'dbname' => Config::get('db.database'),
+];
+
+// Create the connection
+$conn = DriverManager::getConnection($dbConfig);
+
+// obtaining the entity manager
+$entityManager = EntityManager::create($conn, $config);
+
+$schemaTool = new SchemaTool($entityManager);
+
+// Get the metadata of all entities
+$metadata = $entityManager->getMetadataFactory()->getAllMetadata();
+
+// Update the database schema to match the current mapping metadata
+try {
+    $schemaTool->updateSchema($metadata);
+    echo "Database schema updated successfully!";
+} catch (\Exception $e) {
+    echo "An error occurred while updating the database schema: " . $e->getMessage();
+}
