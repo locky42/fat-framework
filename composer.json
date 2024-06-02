@@ -25,5 +25,6 @@
             "name": "Maksym Zinchenko",
             "email": "zinchenko.m.42@gmail.com"
         }
-    ]
+    ],
+    "minimum-stability": "dev"
 }
